@@ -8,6 +8,7 @@ const router = express.Router(); //* create a new router (router instance)
 router.route("/top-5-cheap").get(tourController.aliasTopTours, tourController.getAllTours);
 
 router.route("/tour-stats").get(tourController.getTourStats);
+router.route("/monthly-plan/:year").get(tourController.getMonthlyPlan);
 
 router.route("/").get(tourController.getAllTours).post(tourController.CreateTour);
 
