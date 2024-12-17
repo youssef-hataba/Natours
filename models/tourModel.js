@@ -109,10 +109,10 @@ tourSchema.pre(/^find/, function (next) {
   next();
 });
 
-tourSchema.post(/^find/, function (docs, next) {
-  console.log("Query executed:", docs);
-  next();
-});
+// tourSchema.post(/^find/, function (docs, next) {
+//   console.log("Query executed:", docs);
+//   next();
+// });
 
 //? aggregation pipeline middleware like (getTourStats,getMonthlyPlan)
 tourSchema.pre("aggregate", function (next) {
