@@ -1,5 +1,6 @@
 const Tour = require("../models/tourModel");
 const APIFeatures = require("../utils/apiFeatures");
+const AppError = require("../utils/appError");
 
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = "5";
@@ -35,9 +36,14 @@ exports.getAllTours = async (req, res) => {
   }
 };
 
-exports.getTour = async (req, res) => {
+exports.getTour = async (req, res, next) => {
   try {
     const tour = await Tour.findById(req.params.id); //? === Tour.findOne({_id:req.params.id});
+
+    if (!tour) {
+      return next(new AppError("No Tour Found With This Id", 404));
+    }
+
     res.status(200).json({
       status: "success",
       data: {
@@ -51,7 +57,6 @@ exports.getTour = async (req, res) => {
       error: err.message,
     });
   }
-  //
 };
 
 exports.CreateTour = async (req, res) => {
@@ -73,12 +78,17 @@ exports.CreateTour = async (req, res) => {
   }
 };
 
-exports.updateTour = async (req, res) => {
+exports.updateTour = async (req, res, next) => {
   try {
     const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
     });
+
+    if (!tour) {
+      return next(new AppError("No Tour Found With This Id", 404));
+    }
+
     res.status(201).json({
       status: "success",
       data: {
@@ -96,7 +106,12 @@ exports.updateTour = async (req, res) => {
 
 exports.deleteTour = async (req, res) => {
   try {
-    await Tour.findByIdAndDelete(req.params.id);
+    const tour = await Tour.findByIdAndDelete(req.params.id);
+
+    if (!tour) {
+      return next(new AppError("No Tour Found With This Id", 404));
+    }
+
     res.status(204).json({
       status: "success",
       data: null,
@@ -169,16 +184,16 @@ exports.getMonthlyPlan = async (req, res) => {
         $group: {
           _id: {$month: "$startDates"},
           numTourStarts: {$sum: 1},
-          tours: {$push: '$name'},
+          tours: {$push: "$name"},
         },
       },
       {
-        $addFields:{ month:'$_id' }
+        $addFields: {month: "$_id"},
       },
       {
-        $project:{
-          _id:0
-        }
+        $project: {
+          _id: 0,
+        },
       },
       {
         $sort: {numTourStarts: -1},
@@ -200,5 +215,3 @@ exports.getMonthlyPlan = async (req, res) => {
     });
   }
 };
-
-
