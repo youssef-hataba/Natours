@@ -4,7 +4,7 @@
   "main": "app.js",
   "scripts": {
     "start": "nodemon server.js",
-    "debug":"ndb server.js"
+    "debug": "ndb server.js"
   },
   "author": "youssef-hataba",
   "license": "ISC",
@@ -15,7 +15,8 @@
     "mongoose": "^8.8.4",
     "morgan": "^1.10.0",
     "ndb": "^1.1.5",
-    "slugify": "^1.6.6"
+    "slugify": "^1.6.6",
+    "validator": "^13.12.0"
   },
   "devDependencies": {
     "prettier": "^3.4.2"
