@@ -18,7 +18,7 @@ exports.getAllUsers = async (req, res) => {
       message: "Error getting users",
       error: err.message,
     });
-  }
+  } 
 };
 
 exports.getUser = (req, res) => {

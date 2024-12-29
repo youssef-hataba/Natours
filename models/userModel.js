@@ -44,7 +44,14 @@ userSchema.pre('save', async function(next){
   this.password = await bcrypt.hash(this.password, 14);//? hash the password with const of 14
   this.passwordConfirm = undefined;//? delete passwordConfirm
   next();
-})
+});
+
+
+//? instance method (method that gonna be avilable on all documents of a certain collection)
+userSchema.methods.comparePassword = async function (candidatePassword , userPassword) {
+  return await bcrypt.compare(candidatePassword, userPassword);//? we cannot compare them manually because 
+  //? the candidate password in not hashed (the password coming from the user ) but user Password hashed 
+};
 
 const User = mongoose.model("User", userSchema);
 
