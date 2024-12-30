@@ -63,3 +63,22 @@ exports.login = async (req, res, next) => {
     });
   }
 };
+
+
+exports.protect = async (req,res,next) => {
+
+  //? 1) Getting token and check of it's there 
+  
+
+
+  //? 2) Verification token
+
+
+  //? 3) Check if user still exists
+
+
+  //? 4) check if user changed password after the token was issued
+
+
+  next();
+}
