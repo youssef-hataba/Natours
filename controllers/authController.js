@@ -78,12 +78,14 @@ exports.protect = async (req, res, next) => {
     }
 
     //? 2) Verification token
-    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-    console.log(decoded);
+    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);//* id , stardata , expire data
 
     //? 3) Check if user still exists
+    const freshUser = await User.findById(decoded.id);
 
     //? 4) check if user changed password after the token was issued
+
+
   } catch (err) {
     return next(new AppError("Invalid token, please login again", 401));
   }
