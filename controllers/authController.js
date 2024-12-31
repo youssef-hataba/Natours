@@ -96,6 +96,6 @@ exports.protect = async (req, res, next) => {
   }
 
   //* Grant Access to Protected Route
-  req.user = currentUser;
+  // req.user = currentUser;
   next();
 };
