@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema({
       message: "Passwords do not match",
     },
   },
+  passwordChangedAt:Date,
 });
 
 userSchema.pre('save', async function(next){
@@ -52,6 +53,13 @@ userSchema.methods.comparePassword = async function (candidatePassword , userPas
   return await bcrypt.compare(candidatePassword, userPassword);//? we cannot compare them manually because 
   //? the candidate password in not hashed (the password coming from the user ) but user Password hashed 
 };
+
+userSchema.methods.changedPasswordAfter = function(JWTTIMESTAMP){
+  if(this)
+
+
+  return false;
+}
 
 const User = mongoose.model("User", userSchema);
 
