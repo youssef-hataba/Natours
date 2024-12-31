@@ -55,10 +55,15 @@ userSchema.methods.comparePassword = async function (candidatePassword , userPas
 };
 
 userSchema.methods.changedPasswordAfter = function(JWTTIMESTAMP){
-  if(this)
+  
+  if(this.passwordChangedAt){
+    const changedTimestamp =parseInt(this.passwordChangedAt.getTime() / 1000 ,10);
+
+    return JWTTIMESTAMP < changedTimestamp;
+  }
 
 
-  return false;
+  return false;// false mean not changed
 }
 
 const User = mongoose.model("User", userSchema);

@@ -88,7 +88,9 @@ exports.protect = async (req, res, next) => {
     }
 
     //? 4) check if user changed password after the token was issued
-    
+    if(freshUser.changedPasswordAfter(decoded.iat)){
+      
+    }    
 
   } catch (err) {
     return next(new AppError("Invalid token, please login again", 401));
