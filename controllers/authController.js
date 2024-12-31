@@ -1,3 +1,4 @@
+const {promisify} = require("util");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const AppError = require("../utils/appError");
@@ -74,7 +75,9 @@ exports.protect = async (req, res, next) => {
   if (!token) {
     return next(new AppError("Please log in to get access to the tours", 401));
   }
+
   //? 2) Verification token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
   //? 3) Check if user still exists
 
