@@ -104,7 +104,7 @@ exports.updateTour = async (req, res, next) => {
   }
 };
 
-exports.deleteTour = async (req, res) => {
+exports.deleteTour = async (req, res,next) => {
   try {
     const tour = await Tour.findByIdAndDelete(req.params.id);
 

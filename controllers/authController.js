@@ -14,7 +14,7 @@ exports.signup = async (req, res, next) => {
     const newUser = await User.create({
       name: req.body.name,
       email: req.body.email,
-      role:req.body.role,
+      role: req.body.role,
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,
     });
@@ -67,6 +67,7 @@ exports.login = async (req, res, next) => {
 };
 
 exports.protect = async (req, res, next) => {
+  let currentUser;
   try {
     //? 1) Getting token and check of it's there
     let token;
@@ -82,7 +83,7 @@ exports.protect = async (req, res, next) => {
     const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET); //* id , issued data , expire data
 
     //? 3) Check if user still exists
-    const currentUser = await User.findById(decoded.id);
+    currentUser = await User.findById(decoded.id);
 
     if (!currentUser) {
       return next(new AppError("The user belonging to this token does no longer exist.", 401));
@@ -97,17 +98,15 @@ exports.protect = async (req, res, next) => {
   }
 
   //* Grant Access to Protected Route
-  // req.user = currentUser;
+  req.user = currentUser;
   next();
 };
 
-
-exports.restrictTo = (...roles) =>{
-  return (req,res,next)=>{
-    if(!roles.includes(req.user.role)){
-      return next(new AppError("You do not have permission to perform this action",403));
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(new AppError("You do not have permission to perform this action", 403));
     }
     next();
-  }
-}
-
+  };
+};
