@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const {promisify} = require("util");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
@@ -7,6 +8,18 @@ const sendEmail = require("../utils/email");
 const signToken = (id) => {
   return jwt.sign({id}, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+};
+
+const createSendToken = (user, statusCode, res) => {
+  const token = signToken(user._id);
+
+  res.status(statusCode).json({
+    status: "success",
+    token,
+    data: {
+      user,
+    },
   });
 };
 
@@ -20,15 +33,7 @@ exports.signup = async (req, res, next) => {
       passwordConfirm: req.body.passwordConfirm,
     });
 
-    const token = signToken(newUser._id);
-
-    res.status(201).json({
-      status: "success",
-      token,
-      data: {
-        user: newUser,
-      },
-    });
+    createSendToken(newUser, 201, res);
   } catch (err) {
     res.status(500).json({
       status: "fail",
@@ -52,12 +57,7 @@ exports.login = async (req, res, next) => {
       return next(new AppError("Incorrect email or password", 401)); //* 401 => unauthorized
     }
 
-    const token = signToken(user._id);
-
-    res.status(200).json({
-      status: "success",
-      token,
-    });
+    createSendToken(user, 200, res);
   } catch (err) {
     res.status(500).json({
       status: "fail",
@@ -154,4 +154,57 @@ exports.forgotPassword = async (req, res, next) => {
   }
 };
 
-exports.resetPassword = (req, res, next) => {};
+exports.resetPassword = async (req, res, next) => {
+  try {
+    //? 1) Get user based on the token
+    const hashedToken = crypto.createHash("sha256").update(req.params.token).digest("hex");
+
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: {$gt: Date.now()},
+    });
+
+    //? 2) If token has not expired, and there is user, set the new password
+    if (!user) {
+      return next(new AppError("Token is invalid or expired", 400));
+    }
+
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+
+    await user.save();
+
+    //? 3) Update changedPasswordAt property for the user
+
+    //? 4) Log the user in, send JWT
+    createSendToken(user, 200, res);
+  } catch (err) {
+    return next(new AppError("Invalid token or password reset expired", 400));
+  }
+};
+
+exports.updatePassword = async (req, res, next) => {
+  try {
+    //? 1) Get user from collection
+    const user = await User.findById(req.user.id).select("+password");
+
+    //? 2) check if posted current password is correct
+    if (!(await user.comparePassword(req.body.passwordCurrent, user.password))) {
+      return next(new AppError("Invalid Password", 401));
+    }
+
+    //? 3) If correct, update the password
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+
+    await user.save();
+    // User.findByIdAndUpdate will not work as intended! all validator and midle ware like (encrypt the password ) don't work in itr
+
+    //? 4) Log user in , send JWT
+    createSendToken(user, 200, res);
+  } catch (err) {
+    return next(new AppError("Error updating password", 500));
+  }
+};

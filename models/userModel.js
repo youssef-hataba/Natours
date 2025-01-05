@@ -55,6 +55,14 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+userSchema.pre("save", function (next) {
+  if (!this.isModified("password") || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now() - 1000;//* sometimes saving to the DB is a bit slower than issuing the JSON web Token (putting this password Changed one second in the past,will then ensure that the token is always created after the password has been changed  )
+
+  next();
+});
+
 //? instance method (method that gonna be avilable on all documents of a certain collection)
 userSchema.methods.comparePassword = async function (candidatePassword, userPassword) {
   return await bcrypt.compare(candidatePassword, userPassword); //? we cannot compare them manually because
