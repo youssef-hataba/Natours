@@ -38,7 +38,7 @@ exports.updateMe = async (req, res, next) => {
 
   //? 2) Filter out unwanted fields from req.body
   const filteredBody = filterObj(req.body, "name", "email");
-  
+
   //? 3) Update user document
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     new: true,
@@ -50,6 +50,14 @@ exports.updateMe = async (req, res, next) => {
     data: {
       user: updatedUser,
     },
+  });
+};
+
+exports.deleteMe = async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user.id, {active: false});
+  res.status(204).json({
+    status: "success",
+    data: null,
   });
 };
 
