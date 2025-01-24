@@ -77,7 +77,7 @@ exports.protect = async (req, res, next) => {
     }
 
     if (!token) {
-      return next(new AppError("Please log in to get access to the tours", 401));
+      return next(new AppError("Please login to get access to the tours", 401));
     }
 
     //? 2) Verification token
