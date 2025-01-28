@@ -77,11 +77,37 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    startLocation:{
+      //GeoJSON
+      type:{
+        type:String,
+        default:'Point',
+        enum:['Point'],
+      },
+      coordinates:[Number],
+      address:String,
+      description:String,
+    },
+    locations:[
+      //* by specifying basically an arry of objects, this will then create brand new documents inside of the parent document
+      
+      {
+        type:{
+          type: String,
+          default:'Point',
+          enum:['Point'],
+        },
+        coordinates:[Number],
+        address:String,
+        description:String,
+        day:Number,
+      }
+    ]
   },
   {
     toJSON: {virtuals: true}, //? to include virtual properties in the json output
     toObject: {virtuals: true},
-  }
+  },
 );
 
 //? virtual Properties NOTE: we define a regular function here not an arrow function because we need to this keyword
