@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const slugify = require("slugify");
 
-const User = require('./userModel')
+const User = require("./userModel");
 
 const tourSchema = new mongoose.Schema(
   {
@@ -79,38 +79,45 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    startLocation:{
+    startLocation: {
       //GeoJSON
-      type:{
-        type:String,
-        default:'Point',
-        enum:['Point'],
+      type: {
+        type: String,
+        default: "Point",
+        enum: ["Point"],
       },
-      coordinates:[Number],
-      address:String,
-      description:String,
+      coordinates: [Number],
+      address: String,
+      description: String,
     },
-    locations:[
+    locations: [
       //* by specifying basically an arry of objects, this will then create brand new documents inside of the parent document
 
       {
-        type:{
+        type: {
           type: String,
-          default:'Point',
-          enum:['Point'],
+          default: "Point",
+          enum: ["Point"],
         },
-        coordinates:[Number],
-        address:String,
-        description:String,
-        day:Number,
-      }
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
     ],
-    guides:Array
+    // guides:Array embedding tour guide
+    guides: [
+      //* Child Referencing;
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   {
     toJSON: {virtuals: true}, //? to include virtual properties in the json output
     toObject: {virtuals: true},
-  },
+  }
 );
 
 //? virtual Properties NOTE: we define a regular function here not an arrow function because we need to this keyword
@@ -125,12 +132,13 @@ tourSchema.pre("save", function (next) {
   next();
 });
 
-tourSchema.pre('save',async function(next){
-  const guidesPromises = this.guides.map(async id => await User.findById(id));
-  this.guides = await Promise.all(guidesPromises);
+//? middleware to embed the user guide;
+// tourSchema.pre('save',async function(next){
+//   const guidesPromises = this.guides.map(async id => await User.findById(id));
+//   this.guides = await Promise.all(guidesPromises);
 
-  next();
-})
+//   next();
+// })
 
 // post middleware function are executed after all the pre middleware functions have completed
 // tourSchema.post("save", function (doc, next) {
