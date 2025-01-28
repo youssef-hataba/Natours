@@ -11,6 +11,7 @@ const globalErrorHandler = require("./controllers/errorController");
 
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
+const reviewRouter = require("./routes/reviewRoutes");
 
 const app = express();
 
@@ -42,9 +43,18 @@ app.use(mongoSanitize());
 app.use(xss()); // clean any user input from maliciou HTML code
 
 // Prevent parameter pollution
-app.use(hpp({
-  whitelist:['duration','ratingsQuantity','ratingsAverage','maxGrroupSize','difficulty','price']
-}));
+app.use(
+  hpp({
+    whitelist: [
+      "duration",
+      "ratingsQuantity",
+      "ratingsAverage",
+      "maxGrroupSize",
+      "difficulty",
+      "price",
+    ],
+  })
+);
 
 // Serving static files from the public directory
 app.use(express.static(`${__dirname}/public`));
@@ -58,6 +68,7 @@ app.use((req, res, next) => {
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/tours", tourRouter);
+app.use("/api/v1/reviews", reviewRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server.`, 404));

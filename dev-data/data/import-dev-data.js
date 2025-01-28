@@ -2,6 +2,7 @@ const fs = require("fs");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const Tour = require("./../../models/tourModel");
+const Review = require("./../../models/reviewModel");
 
 dotenv.config({path: "./config.env"});
 
@@ -17,12 +18,12 @@ mongoose
   });
 
 // Read JSON File
-const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, "utf-8"));
+const reviews = JSON.parse(fs.readFileSync(`${__dirname}/reviews.json`, "utf-8"));
 
 //? Import Data Into DB
 const importData = async () => {
   try {
-    await Tour.create(tours);
+    await Review.create(reviews);
     console.log("data successfully loaded !");
   } catch (err) {
     console.error("Error in importing data", err);
