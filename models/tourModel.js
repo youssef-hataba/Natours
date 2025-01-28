@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const slugify = require("slugify");
 
+const User = require('./userModel')
+
 const tourSchema = new mongoose.Schema(
   {
     //? tour schema
@@ -90,7 +92,7 @@ const tourSchema = new mongoose.Schema(
     },
     locations:[
       //* by specifying basically an arry of objects, this will then create brand new documents inside of the parent document
-      
+
       {
         type:{
           type: String,
@@ -102,7 +104,8 @@ const tourSchema = new mongoose.Schema(
         description:String,
         day:Number,
       }
-    ]
+    ],
+    guides:Array
   },
   {
     toJSON: {virtuals: true}, //? to include virtual properties in the json output
@@ -122,7 +125,14 @@ tourSchema.pre("save", function (next) {
   next();
 });
 
-// //? post middleware function are executed after all the pre middleware functions have completed
+tourSchema.pre('save',async function(next){
+  const guidesPromises = this.guides.map(async id => await User.findById(id));
+  this.guides = await Promise.all(guidesPromises);
+
+  next();
+})
+
+// post middleware function are executed after all the pre middleware functions have completed
 // tourSchema.post("save", function (doc, next) {
 //   console.log(doc);
 //   next();
