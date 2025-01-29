@@ -41,7 +41,7 @@ exports.getTour = async (req, res, next) => {
     const tour = await Tour.findById(req.params.id)
     .populate({
       path: "reviews",
-      select: "-__v",
+      select: "-__v ",
     }); //* populate -> fill the guides up with the actual data in the query and not the in DB
 
     if (!tour) {
