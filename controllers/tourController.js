@@ -38,11 +38,11 @@ exports.getAllTours = async (req, res) => {
 
 exports.getTour = async (req, res, next) => {
   try {
-    const tour = await Tour.findById(req.params.id);
-    // .populate({
-    //   path: "guides",
-    //   select: "-__v -passswordChangedAt",
-    // }); //* populate -> fill the guides up with the actual data in the query and not the in DB
+    const tour = await Tour.findById(req.params.id)
+    .populate({
+      path: "reviews",
+      select: "-__v",
+    }); //* populate -> fill the guides up with the actual data in the query and not the in DB
 
     if (!tour) {
       return next(new AppError("No Tour Found With This Id", 404));
