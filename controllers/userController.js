@@ -1,5 +1,6 @@
 const User = require("../models/userModel");
 const AppError = require("../utils/appError");
+const handlerFactory = require("./handlerFactory");
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -9,25 +10,25 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-exports.getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find();
+// exports.getAllUsers = async (req, res) => {
+//   try {
+//     const users = await User.find();
 
-    res.status(200).json({
-      status: "success",
-      results: users.length,
-      data: {
-        users,
-      },
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: "fail",
-      message: "Error getting users",
-      error: err.message,
-    });
-  }
-};
+//     res.status(200).json({
+//       status: "success",
+//       results: users.length,
+//       data: {
+//         users,
+//       },
+//     });
+//   } catch (err) {
+//     res.status(500).json({
+//       status: "fail",
+//       message: "Error getting users",
+//       error: err.message,
+//     });
+//   }
+// };
 
 exports.updateMe = async (req, res, next) => {
   //? 1) create error if use POSTs password data
@@ -61,27 +62,7 @@ exports.deleteMe = async (req, res, next) => {
   });
 };
 
-exports.getUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined!",
-  });
-};
-exports.CreateUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined!",
-  });
-};
-exports.updateUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined!",
-  });
-};
-exports.deleteUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined!",
-  });
-};
+exports.getAllUsers = handlerFactory.getAll(User)
+exports.getUser = handlerFactory.createOne(User);
+exports.updateUser = handlerFactory.updateOne(User); // only for administrators //* Do not update PASSWORDS with this
+exports.deleteUser = handlerFactory.deleteOne(User); // only for administrators

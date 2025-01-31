@@ -1,6 +1,7 @@
 const Tour = require("../models/tourModel");
 const APIFeatures = require("../utils/apiFeatures");
 const AppError = require("../utils/appError");
+const handlerFactory = require("./handlerFactory");
 
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = "5";
@@ -9,125 +10,131 @@ exports.aliasTopTours = (req, res, next) => {
   next();
 };
 
-exports.getAllTours = async (req, res) => {
-  try {
-    //* Execute Query
-    const features = new APIFeatures(Tour.find(), req.query)
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
+// exports.getAllTours = async (req, res) => {
+//   try {
+//     // Execute Query
+//     const features = new APIFeatures(Tour.find(), req.query)
+//       .filter()
+//       .sort()
+//       .limitFields()
+//       .paginate();
 
-    const tours = await features.query;
+//     const tours = await features.query;
 
-    res.status(200).json({
-      status: "success",
-      results: tours.length,
-      data: {
-        tours,
-      },
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: "fail",
-      message: "Error getting tours",
-      error: err.message,
-    });
-  }
-};
+//     res.status(200).json({
+//       status: "success",
+//       results: tours.length,
+//       data: {
+//         tours,
+//       },
+//     });
+//   } catch (err) {
+//     res.status(500).json({
+//       status: "fail",
+//       message: "Error getting tours",
+//       error: err.message,
+//     });
+//   }
+// };
 
-exports.getTour = async (req, res, next) => {
-  try {
-    const tour = await Tour.findById(req.params.id)
-    .populate({
-      path: "reviews",
-      select: "-__v ",
-    }); //* populate -> fill the guides up with the actual data in the query and not the in DB
+// exports.getTour = async (req, res, next) => {
+//   try {
+//     const tour = await Tour.findById(req.params.id)
+//     .populate({
+//       path: "reviews",
+//       select: "-__v ",
+//     }); //* populate -> fill the guides up with the actual data in the query and not the in DB
 
-    if (!tour) {
-      return next(new AppError("No Tour Found With This Id", 404));
-    }
+//     if (!tour) {
+//       return next(new AppError("No Tour Found With This Id", 404));
+//     }
 
-    res.status(200).json({
-      status: "success",
-      data: {
-        tour,
-      },
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: "fail",
-      message: "Tour not found",
-      error: err.message,
-    });
-  }
-};
+//     res.status(200).json({
+//       status: "success",
+//       data: {
+//         tour,
+//       },
+//     });
+//   } catch (err) {
+//     res.status(404).json({
+//       status: "fail",
+//       message: "Tour not found",
+//       error: err.message,
+//     });
+//   }
+// };
 
-exports.CreateTour = async (req, res) => {
-  try {
-    const newTour = await Tour.create(req.body);
+// exports.CreateTour = async (req, res) => {
+//   try {
+//     const newTour = await Tour.create(req.body);
 
-    res.status(201).json({
-      status: "success",
-      data: {
-        tour: newTour,
-      },
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: "fail",
-      message: "Error creating tour",
-      error: err.message,
-    });
-  }
-};
+//     res.status(201).json({
+//       status: "success",
+//       data: {
+//         tour: newTour,
+//       },
+//     });
+//   } catch (err) {
+//     res.status(500).json({
+//       status: "fail",
+//       message: "Error creating tour",
+//       error: err.message,
+//     });
+//   }
+// };
 
-exports.updateTour = async (req, res, next) => {
-  try {
-    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+// exports.updateTour = async (req, res, next) => {
+//   try {
+//     const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+//       new: true,
+//       runValidators: true,
+//     });
 
-    if (!tour) {
-      return next(new AppError("No Tour Found With This Id", 404));
-    }
+//     if (!tour) {
+//       return next(new AppError("No Tour Found With This Id", 404));
+//     }
 
-    res.status(201).json({
-      status: "success",
-      data: {
-        tour,
-      },
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: "fail",
-      message: "Error updating tour",
-      error: err.message,
-    });
-  }
-};
+//     res.status(201).json({
+//       status: "success",
+//       data: {
+//         tour,
+//       },
+//     });
+//   } catch (err) {
+//     res.status(500).json({
+//       status: "fail",
+//       message: "Error updating tour",
+//       error: err.message,
+//     });
+//   }
+// };
 
-exports.deleteTour = async (req, res, next) => {
-  try {
-    const tour = await Tour.findByIdAndDelete(req.params.id);
+// exports.deleteTour = async (req, res, next) => {
+//   try {
+//     const tour = await Tour.findByIdAndDelete(req.params.id);
 
-    if (!tour) {
-      return next(new AppError("No Tour Found With This Id", 404));
-    }
+//     if (!tour) {
+//       return next(new AppError("No Tour Found With This Id", 404));
+//     }
 
-    res.status(204).json({
-      status: "success",
-      data: null,
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: "fail",
-      message: "Error deleting tour",
-      error: err.message,
-    });
-  }
-};
+//     res.status(204).json({
+//       status: "success",
+//       data: null,
+//     });
+//   } catch (err) {
+//     res.status(500).json({
+//       status: "fail",
+//       message: "Error deleting tour",
+//       error: err.message,
+//     });
+//   }
+// };
+
+exports.getAllTours = handlerFactory.getAll(Tour);
+exports.updateTour = handlerFactory.updateOne(Tour);
+exports.deleteTour = handlerFactory.deleteOne(Tour);
+exports.createTour = handlerFactory.createOne(Tour);
+exports.getTour = handlerFactory.getOne(Tour, {path: "reviews"});
 
 exports.getTourStats = async (req, res) => {
   try {
