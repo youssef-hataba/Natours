@@ -30,6 +30,11 @@ const filterObj = (obj, ...allowedFields) => {
 //   }
 // };
 
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
+
 exports.updateMe = async (req, res, next) => {
   //? 1) create error if use POSTs password data
   if (req.body.password || req.body.passwordConfirm)
@@ -62,7 +67,7 @@ exports.deleteMe = async (req, res, next) => {
   });
 };
 
-exports.getAllUsers = handlerFactory.getAll(User)
-exports.getUser = handlerFactory.createOne(User);
+exports.getAllUsers = handlerFactory.getAll(User);
+exports.getUser = handlerFactory.getOne(User);
 exports.updateUser = handlerFactory.updateOne(User); // only for administrators //* Do not update PASSWORDS with this
 exports.deleteUser = handlerFactory.deleteOne(User); // only for administrators
