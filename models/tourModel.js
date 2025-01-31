@@ -9,7 +9,7 @@ const tourSchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, "A tour must have a name"],
-      unique: true, //* not a validator
+      unique: true,
       trim: true,
       maxlength: [40, "A Tour Name Must Have Lesss Or Equal Then 40 Characters"],
       minlength: [8, "A Tour Name Must Have More Or Equal Then 10 Characters"],
@@ -119,6 +119,10 @@ const tourSchema = new mongoose.Schema(
     toObject: {virtuals: true},
   }
 );
+
+// tourSchema.index({price: 1});
+tourSchema.index({price: 1, ratingsAverage: -1});
+tourSchema.index({slug: 1});
 
 //? virtual Properties NOTE: we define a regular function here not an arrow function because we need to this keyword
 //? also we cannot use this vurtual property in a query like tour.find where durationWeek is = 1 because it is not a part of our DB

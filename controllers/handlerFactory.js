@@ -108,6 +108,7 @@ exports.getAll = (Model)=>async (req, res) => {
       .paginate();
 
     const doc = await features.query;
+    // .explain();
 
     res.status(200).json({
       status: "success",
