@@ -18,7 +18,10 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate: [validator.isEmail, "Please enter a valid email address"],
   },
-  photo: String,
+  photo: {
+    type: String,
+    default: "default.jpg",
+  },
   role: {
     type: String,
     enum: ["user", "admin", "guide", "lead-guide"],
@@ -69,7 +72,7 @@ userSchema.pre("save", function (next) {
 });
 
 userSchema.pre(/^find/, function (next) {
-  this.find({active: {$ne:false}});
+  this.find({active: {$ne: false}});
   next();
 });
 
