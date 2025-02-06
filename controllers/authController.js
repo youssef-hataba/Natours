@@ -3,7 +3,7 @@ const {promisify} = require("util");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const AppError = require("../utils/appError");
-const sendEmail = require("../utils/email");
+const Email = require("../utils/email");
 
 const signToken = (id) => {
   return jwt.sign({id}, process.env.JWT_SECRET, {
@@ -38,13 +38,11 @@ const createSendToken = (user, statusCode, res) => {
 
 exports.signup = async (req, res, next) => {
   try {
-    const newUser = await User.create({
-      name: req.body.name,
-      email: req.body.email,
-      role: req.body.role,
-      password: req.body.password,
-      passwordConfirm: req.body.passwordConfirm,
-    });
+    const newUser = await User.create(req.body);
+
+    const url = `${req.protocol}://${req.get('host')}/me`;
+
+    await new Email(newUser,url).sendWelcome();
 
     createSendToken(newUser, 201, res);
   } catch (err) {
@@ -139,18 +137,10 @@ exports.forgotPassword = async (req, res, next) => {
     await user.save({validateBeforeSave: false});
 
     //? 3) Sen it to user's email
-    const resetURL = `${req.protocol}://${req.get("host")}/api/v1/users/resetPassword/${resetToken}`;
-
-    const message = `You are receiving this email because you has requested a password reset
-    for your account.\n\nPlease click on the following link to reset your password:\n\n${resetURL}\n\n
-    If you did not request this, please ignore this email and your password will remain unchanged.\n`;
-
+    
     try {
-      await sendEmail({
-        email: user.email,
-        subject: "Password Reset Request",
-        message,
-      });
+      const resetURL = `${req.protocol}://${req.get("host")}/api/v1/users/resetPassword/${resetToken}`;
+      await new Email(user,resetURL).sendPasswordReset();
 
       res.status(200).json({
         status: "success",
@@ -221,3 +211,5 @@ exports.updatePassword = async (req, res, next) => {
     return next(new AppError("Error updating password", 500));
   }
 };
+
+//833VW6PETJP35BGP78KRHE51 akdlfjai19KALH*(!LLA
